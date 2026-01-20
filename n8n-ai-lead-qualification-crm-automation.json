@@ -1,0 +1,650 @@
+{
+  "name": "n8n-ai-lead-qualification-crm-automation",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        -176
+      ],
+      "id": "91b8392a-7af4-4460-98b1-d4fedb9d8962",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1tx3fCNzh5pg0ikKu3RED6KtRRx_Cu8pGXF-d1XuB0IM",
+          "mode": "list",
+          "cachedResultName": "raw leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tx3fCNzh5pg0ikKu3RED6KtRRx_Cu8pGXF-d1XuB0IM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tx3fCNzh5pg0ikKu3RED6KtRRx_Cu8pGXF-d1XuB0IM/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        64,
+        -176
+      ],
+      "id": "4aa1b9e1-3838-41b0-bf8c-6f93ff116db0",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "7rHfcKJO21eyEjJW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6cc2aaea-cce5-4054-9ed4-29435fa5cf4c",
+              "name": "name",
+              "value": "={{ $json.Name }}",
+              "type": "string"
+            },
+            {
+              "id": "89c569fb-a896-4755-ae3d-768399e39c35",
+              "name": "email",
+              "value": "={{ $json.Email }}",
+              "type": "string"
+            },
+            {
+              "id": "75040e2f-dbc1-42dc-961d-7a7a0f025970",
+              "name": "Company",
+              "value": "={{ $json.Company }}",
+              "type": "string"
+            },
+            {
+              "id": "0f5c4b51-a6de-490a-8d5c-98bbea358087",
+              "name": "message",
+              "value": "={{ $json.Message }}",
+              "type": "string"
+            },
+            {
+              "id": "aca9d9a7-9d61-49f2-a26c-0501b97d1c5a",
+              "name": "source",
+              "value": "={{ $json.Source }}",
+              "type": "string"
+            },
+            {
+              "id": "45678081-f83a-49a0-8fc3-222c958d889d",
+              "name": "AI Score",
+              "value": "={{ $json['AI Score'] }}",
+              "type": "string"
+            },
+            {
+              "id": "51688877-b65c-4c91-8143-6367f5446d8b",
+              "name": "leadtype",
+              "value": "={{ $json['Lead Type'] }}",
+              "type": "string"
+            },
+            {
+              "id": "c774b918-4913-4bf2-8ce2-be65694537eb",
+              "name": "summary",
+              "value": "={{ $json['AI Summary'] }}",
+              "type": "string"
+            },
+            {
+              "id": "f1ae48b2-6724-43c7-9098-05f9f68a4af4",
+              "name": "followupmsg",
+              "value": "={{ $json['Follow Up message'] }}",
+              "type": "string"
+            },
+            {
+              "id": "964f8b54-defc-42d5-9516-c16c7204618a",
+              "name": "contacted",
+              "value": "={{ $json.Contacted }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        288,
+        -176
+      ],
+      "id": "59c58143-2867-4a05-a537-7911a89c1616",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "605c412e-9532-48de-9c80-a9d9071f330d",
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "@",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "b09f584d-794e-48b4-9583-361bb3d0b737",
+              "leftValue": "={{ $json.name }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        512,
+        -176
+      ],
+      "id": "9ee65b67-15bf-4341-9a6f-f942b5f5d8e0",
+      "name": "Scam Checker"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=You are a sales operations assistant for an automation agency.\nYour job is to analyze inbound leads and help qualify them for follow-up.\n\nBe objective, concise, and practical.\n"
+            },
+            {
+              "content": "=Analyze the following lead and return a STRICT JSON object.\n\nRules:\n- Only return valid JSON\n- Do not add explanations outside JSON\n- Do not include markdown\n- Use double quotes for all keys and values\n\nClassify the lead into one of these categories:\n- \"Hot\" → urgent, clear need, decision-maker intent\n- \"Warm\" → interest shown but no urgency\n- \"Cold\" → vague, exploratory, or low intent\n\nLead details:\nName: {{ $json.name }}\nCompany: {{ $json.Company }}\nSource: {{ $json.source }}\nMessage: {{ $json.message }}\n\nReturn JSON in this exact structure:\n\n{\n  \"lead_type\": \"\",\n  \"reason\": \"\",\n  \"followup_email\": \"\"\n}\n\nFollow-up email rules:\n- Friendly and human\n- 3–5 sentences max\n- No hard selling\n- Reference the lead’s message\n- Sign off as “Hassan”\n"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        736,
+        -272
+      ],
+      "id": "d6ca9f08-1c22-4f70-9ec4-7b7fd664ef60",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "dG1GoPZwCBTAXHVA",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "errorMessage": "SCAM!!"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        1088,
+        -80
+      ],
+      "id": "0f0f3be8-5d15-4aad-9334-98230e86225a",
+      "name": "Scam!"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bbc1857a-2bdd-4ec9-afc5-8a55113be4a8",
+              "name": "leadtype",
+              "value": "={{ JSON.parse($json.output[0].content[0].text).lead_type }}",
+              "type": "string"
+            },
+            {
+              "id": "bd7fe384-aed2-4863-ba74-bec704a108dc",
+              "name": "followup email",
+              "value": "={{ JSON.parse($json.output[0].content[0].text).followup_email }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1312,
+        -368
+      ],
+      "id": "6d1f3d8f-7399-4650-86ff-67289e81cdcf",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1tx3fCNzh5pg0ikKu3RED6KtRRx_Cu8pGXF-d1XuB0IM",
+          "mode": "list",
+          "cachedResultName": "raw leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tx3fCNzh5pg0ikKu3RED6KtRRx_Cu8pGXF-d1XuB0IM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tx3fCNzh5pg0ikKu3RED6KtRRx_Cu8pGXF-d1XuB0IM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Get row(s) in sheet').item.json.Name }}",
+            "Email": "={{ $('Get row(s) in sheet').item.json.Email }}",
+            "Company": "={{ $('Get row(s) in sheet').item.json.Company }}",
+            "Message": "={{ $('Get row(s) in sheet').item.json.Message }}",
+            "Source": "={{ $('Get row(s) in sheet').item.json.Source }}",
+            "AI Score": "=90",
+            "Lead Type": "={{ $json.leadtype }}",
+            "Follow Up message": "={{ $json['followup email'] }}",
+            "Contacted": "Yes"
+          },
+          "matchingColumns": [
+            "Name"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Source",
+              "displayName": "Source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI Score",
+              "displayName": "AI Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lead Type",
+              "displayName": "Lead Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI Summary",
+              "displayName": "AI Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Follow Up message",
+              "displayName": "Follow Up message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Contacted",
+              "displayName": "Contacted",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1536,
+        -368
+      ],
+      "id": "f613508d-c355-46e3-93f2-0adc8b001c74",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "7rHfcKJO21eyEjJW",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Get row(s) in sheet').item.json.Email }}",
+        "subject": "Reply to your request!",
+        "message": "={{ $json['Follow Up message'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1760,
+        -368
+      ],
+      "id": "a23edc14-7430-4892-8c7f-1d67a7c94c69",
+      "name": "Send a message",
+      "webhookId": "c9c5990a-ae2e-4bd6-9e7b-b46dd4aff1b0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "x4ccJ3mA4SGIuqo1",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f246a9dc-bee4-4196-977e-056e595d082f",
+              "leftValue": "={{ $json.output[0].status }}",
+              "rightValue": "completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1088,
+        -272
+      ],
+      "id": "2c1d51ed-1abf-4f89-bc5c-252f70f4b382",
+      "name": "Model Error!"
+    },
+    {
+      "parameters": {
+        "errorMessage": "Error in model!"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        1536,
+        -176
+      ],
+      "id": "7fe2f6c6-8249-433b-8b27-a6bb1dd2ac6f",
+      "name": "Stop and Error"
+    },
+    {
+      "parameters": {
+        "sendTo": "htfsh12345@gmail.com",
+        "subject": "URGENT! ERROR IN MODEL!",
+        "message": "=Error in model!\nThis was the output from the model {{ $('Message a model').item.json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1312,
+        -176
+      ],
+      "id": "b6992330-5db4-4818-a13c-b7081d66dd34",
+      "name": "Send a message1",
+      "webhookId": "8d91385d-b7fd-44c7-8c54-04f9053c5e11",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "x4ccJ3mA4SGIuqo1",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "htfsh12345@gmail.com",
+        "subject": "Scam!",
+        "message": "=Person naming  {{ $('Get row(s) in sheet').item.json.Name }} and email {{ $('Get row(s) in sheet').item.json.Email }} is a scammer!",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        -80
+      ],
+      "id": "9feb3f3e-72ed-4ce4-b67e-77ad05fd1448",
+      "name": "Send a message2",
+      "webhookId": "bb18b468-6ef8-45b3-b800-eb22b477527e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "x4ccJ3mA4SGIuqo1",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Scam Checker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scam Checker": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Model Error!",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model Error!": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message2": {
+      "main": [
+        [
+          {
+            "node": "Scam!",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "723c09ec-903d-4ceb-9d86-20a5020a9b20",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9d4e41ac00f47d48db81622a42173403a2c3150258a9fa8d8d121acaeccc607f"
+  },
+  "id": "ZF89rVGnLXb4s8NrXuXmO",
+  "tags": []
+}
