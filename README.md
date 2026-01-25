@@ -4,7 +4,7 @@ This project is a **real-world, end-to-end automation** built using **n8n**, **O
 
 The workflow automatically qualifies inbound leads, filters out invalid or scam entries, generates AI-powered follow-up emails, and updates a Google Sheets–based CRM — all with proper validation and error handling.
 
-This is not a demo or toy workflow. It mirrors how agencies and sales teams automate lead handling in production.
+This is not a demo or toy orkflow. It mirrors how agencies and sales teams automate lead handling in production.
 
 ---
 
